@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Beauty Salon</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #fff0f5; font-family: Arial, sans-serif; padding-top: 50px; }
+        h1 { color: #ff69b4; font-weight: bold; }
+        .upload-btn { background-color: #ff69b4; color: white; font-weight: bold; }
+        .upload-btn:hover { background-color: #ff1493; }
+        .prediction-section { margin-top: 30px; }
+        .product-card { border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 15px; margin-bottom: 20px; background-color: #fff; text-align: center; }
+        .confidence-bar { height: 20px; border-radius: 10px; }
+        img.uploaded-img { max-width: 300px; border-radius: 15px; border: 3px solid #ff69b4; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div class="container text-center">
+    <h1>AI Beauty Salon</h1>
+    <p class="text-muted">Upload your face image and get personalized skincare product suggestions!</p>
+
+    <!-- Upload Form -->
+    <form method="POST" enctype="multipart/form-data" class="mb-4">
+        <input type="file" name="image" class="form-control mb-2" required>
+        <button type="submit" class="btn upload-btn">Upload & Detect</button>
+    </form>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    {% if skin %}
+    <div class="prediction-section">
+        <img src="{{ url_for('static', filename='uploaded/' + image_file) }}" alt="Uploaded Image" class="uploaded-img">
+        <h3>Predicted Skin Type: <span class="text-primary">{{ skin|capitalize }}</span></h3>
+        <p>Confidence: {{ confidence|round(2) }}%</p>
+
+        <h5>Confidence Probabilities</h5>
+        <div class="progress mb-2">
+            <div class="progress-bar bg-info confidence-bar" style="width: {{ probabilities[0]*100 }}%">
+                Dry: {{ (probabilities[0]*100)|round(2) }}%
+            </div>
+        </div>
+        <div class="progress mb-2">
+            <div class="progress-bar bg-success confidence-bar" style="width: {{ probabilities[1]*100 }}%">
+                Normal: {{ (probabilities[1]*100)|round(2) }}%
+            </div>
+        </div>
+        <div class="progress mb-2">
+            <div class="progress-bar bg-warning confidence-bar" style="width: {{ probabilities[2]*100 }}%">
+                Oily: {{ (probabilities[2]*100)|round(2) }}%
+            </div>
+        </div>
+
+        <h4>Recommended Products</h4>
+        <div class="row justify-content-center">
+            {% for p in products %}
+            <div class="col-md-4">
+                <div class="product-card">
+                    <h5>{{ p.name }}</h5>
+                    <p>{{ p.description }}</p>
+                    <p><strong>Price:</strong> {{ p.price }} LKR</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
